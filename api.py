@@ -5,7 +5,7 @@ from flask import Flask, request
 
 # Inicializar a aplicação Flask.
 # Flask é o framework que recebe as requisições e cuida das rotas.
-app = flask.Flask(__name__)
+app = Flask(__name__)
 
 # Rota de teste para verificar se a API está funcionando.
 @app.route('/api')
@@ -17,7 +17,7 @@ def api():
 def criar_chamado():
 
     # Pegar os dados que vieram no corpo da requisição em formato JSON.
-    dados = flask.request.get_json()
+    dados = request.get_json()
 
     # Cada variável recebe uma informação do JSON enviado.
     nome_funcionario = dados.get('nome_funcionario')
@@ -73,7 +73,9 @@ def listar_chamados():
             "id": id_chamado,
             "nome_funcionario": nome_funcionario,
             "setor_funcionario": setor_funcionario,
-            "problema_descrito": problema_descrito
+            "problema_descrito": problema_descrito,
+            "status": "status",
+            "prioridade": "prioridade"
         }
         lista_chamados.append(chamado)
 
