@@ -5,7 +5,7 @@ from flask import Flask, request
 
 # Inicializar a aplicação Flask.
 # Flask é o framework que recebe as requisições e cuida das rotas.
-app = Flask(__name__)
+app = flask.Flask(__name__)
 
 # Rota de teste para verificar se a API está funcionando.
 @app.route('/api')
@@ -17,7 +17,7 @@ def api():
 def criar_chamado():
 
     # Pegar os dados que vieram no corpo da requisição em formato JSON.
-    dados = request.get_json()
+    dados = flask.request.get_json()
 
     # Cada variável recebe uma informação do JSON enviado.
     nome_funcionario = dados.get('nome_funcionario')
