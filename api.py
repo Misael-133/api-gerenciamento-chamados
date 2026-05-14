@@ -4,90 +4,121 @@ import sqlite3
 from flask import Flask, request
 
 # Inicializar a aplicação Flask.
-# Flask é o framework que recebe as requisições e cuida das rotas.
+# Flask é o framework responsável pelas rotas e requisições HTTP.
 app = Flask(__name__)
 
-# Rota de teste para verificar se a API está funcionando.
+# =========================================================
+# ROTA TESTE
+# =========================================================
+
 @app.route('/api')
 def api():
     return 'API rodando 🚀'
 
 
+# =========================================================
+# CRIAR CHAMADO (POST)
+# =========================================================
+
 @app.route('/chamados', methods=['POST'])
 def criar_chamado():
 
-    # Pegar os dados que vieram no corpo da requisição em formato JSON.
+    # Pegar os dados enviados em JSON.
     dados = request.get_json()
 
-    # Cada variável recebe uma informação do JSON enviado.
+    # Extrair cada informação do JSON.
     nome_funcionario = dados.get('nome_funcionario')
     setor_funcionario = dados.get('setor_funcionario')
     problema_descrito = dados.get('problema_descrito')
+    status = dados.get('status')
+    prioridade = dados.get('prioridade')
 
-    # Abrir conexão com o banco SQLite local.
+    # Abrir conexão com o banco.
     conexao = sqlite3.connect('banco.db')
     cursor = conexao.cursor()
 
-    # Inserir os dados do chamado na tabela 'chamados'.
+    # Inserir dados na tabela.
     cursor.execute('''
     INSERT INTO chamados (
         nome_funcionario,
         setor_funcionario,
-        problema_descrito
+        problema_descrito,
+        status,
+        prioridade
     )
-    VALUES (?, ?, ?)
+    VALUES (?, ?, ?, ?, ?)
     ''', (
         nome_funcionario,
         setor_funcionario,
-        problema_descrito
+        problema_descrito,
+        status,
+        prioridade
     ))
 
-    # Salvar as alterações no banco.
+    # Salvar alterações.
     conexao.commit()
 
-    # Fechar a conexão para liberar recursos.
+    # Fechar conexão.
     conexao.close()
 
-    # Retornar uma mensagem dizendo que deu certo.
+    # Retorno da API.
     return {
         "mensagem": "Chamado criado com sucesso!",
         "funcionario": nome_funcionario
     }
 
-# Rota para listar todos os chamados salvos no banco.
+
+# =========================================================
+# LISTAR CHAMADOS (GET)
+# =========================================================
+
 @app.route('/chamados', methods=['GET'])
 def listar_chamados():
-    # Abrir conexão com o banco SQLite.
+
+    # Abrir conexão com banco.
     conexao = sqlite3.connect('banco.db')
     cursor = conexao.cursor()
 
-    # Buscar todos os registros da tabela 'chamados'.
+    # Buscar todos os chamados.
     cursor.execute('SELECT * FROM chamados')
+
+    # fetchall() pega todos os registros encontrados.
     chamados = cursor.fetchall()
 
-    # Criar uma lista de chamados em formato de dicionários para retornar.
+    # Lista final que será retornada em JSON.
     lista_chamados = []
+
+    # Percorrer cada linha retornada do banco.
     for linha in chamados:
-        id_chamado, nome_funcionario, setor_funcionario, problema_descrito = linha
+
+        # Cada variável recebe uma coluna da tabela.
+        id_chamado, nome_funcionario, setor_funcionario, problema_descrito, status, prioridade = linha
+
+        # Transformar os dados em dicionário.
         chamado = {
             "id": id_chamado,
             "nome_funcionario": nome_funcionario,
             "setor_funcionario": setor_funcionario,
             "problema_descrito": problema_descrito,
-            "status": "status",
-            "prioridade": "prioridade"
+            "status": status,
+            "prioridade": prioridade
         }
+
+        # Adicionar chamado na lista.
         lista_chamados.append(chamado)
 
-    # Fechar a conexão com o banco.
+    # Fechar conexão.
     conexao.close()
 
-    # Retornar a lista de chamados para quem pediu.
+    # Retornar JSON final.
     return {
         "chamados": lista_chamados
     }
 
 
+# =========================================================
+# INICIAR SERVIDOR FLASK
+# =========================================================
 
 if __name__ == '__main__':
     app.run(debug=True)
